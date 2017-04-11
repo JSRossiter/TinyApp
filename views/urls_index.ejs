@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>Original URL</th>
+      <th>Shortened form</th>
+    </tr>
+    <% for (url in urls) { %>
+    <tr>
+      <td><%= urls[url] %></td>
+      <td><%= url %></td>
+    </tr>
+    <% } %>
+  </table>
+  <a href='#'>Shorten a URL</a>
+
+</body>
+</html>
