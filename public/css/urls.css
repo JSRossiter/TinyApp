@@ -1,0 +1,15 @@
+table {
+  margin: 50px 0 25px 50px;
+}
+
+th#col1 {
+  width: 300px;
+}
+
+th {
+  padding: 5px 15px;
+}
+
+a#new-url {
+  margin: 0 0 0 50px;
+}

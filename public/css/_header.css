@@ -1,0 +1,40 @@
+@font-face {
+    font-family: VeraSe;
+    src: url(../resources/VeraSe.ttf);
+}
+
+html, body {
+  margin:0;
+  padding:0;
+}
+
+div.header {
+  font-family: VeraSe;
+  background-color: #6E6C6D;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: white;
+}
+
+h1.header {
+  display: inline-block;
+  padding: 25px 100px;
+  text-decoration: none;
+  color: white;
+
+}
+
+form#logout {
+  display: inline-block;
+  float: right;
+  margin: 10px 25px;
+}
+
+a.header {
+  display: inline-block;
+  float: right;
+  margin: 10px 25px 0 0;
+  color: white;
+
+}

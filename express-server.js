@@ -65,24 +65,26 @@ function urlsForUser (userID) {
   return output;
 }
 
-// TODO home page handler
+function findUser(email) {
+  return Object.values(users).find(u => u.email === email);
+}
+
+// home page handler
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  if (req.session.user_id) res.redirect("/urls");
+  else res.render("landing_page");
 });
 
 // register
-app.post("/register", (req, res) => {
+app.post("/register", (req, res, next) => {
   if (!req.body.email || !req.body.password) {
-    res.status(400).send("Please complete both fields");
+    next({status: 409, message: 'missing email or password'});
     return;
   }
-  for (let id in users) {
-    if (req.body.email === users[id].email) {
-      res.status(400).send("This username is already in use");
-      return;
-    }
+  if(findUser(req.body.email)) {
+    next({status: 409, message: 'user already exists'});
+    return;
   }
-
   userID = generateRandomString();
   users[userID] = {
     id: userID,
@@ -90,26 +92,22 @@ app.post("/register", (req, res) => {
     password: bcrypt.hashSync(req.body.password, 10)
   };
   req.session.user_id = userID;
-  res.redirect("/");
+  res.redirect("/urls");
 });
 
 // login
-app.post("/login", (req, res) => {
-  for (id in users) {
-    if (req.body.email === users[id].email) {
-      if (bcrypt.compareSync(req.body.password, users[id].password)) {
-        // login successful
-        req.session.user_id = users[id].id;
-        res.redirect("/");
-        return;
-      } else {
-        res.status(403).send("Incorrect username or password");
-        return;
-      }
-    }
+app.post("/login", (req, res, next) => {
+  if (!req.body.email || !req.body.password) {
+    next({status: 409, message: 'missing email or password'});
+    return;
   }
-  res.status(403).send("Incorrect username or password");
-  return;
+  let user = findUser(req.body.email);
+  if (user && bcrypt.compareSync(req.body.password, user.password)) {
+    req.session.user_id = user.id;
+    res.redirect('/urls');
+  } else {
+    next({status: 409, message: 'bad credentials'});
+  }
 });
 
 // logout
@@ -119,31 +117,38 @@ app.post("/logout", (req, res) => {
 });
 
 // follow a link
-app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL].longURL;
-  // TODO check if link in database
-  // if (!longURL) {
-  //   res.render("BAD_LINK")
-  // }
-  res.redirect(longURL);
+app.get("/u/:shortURL", (req, res, next) => {
+  // check if link is in database
+  if (!urlDatabase[req.params.shortURL]) {
+    next({status: 400, message: 'link not in database'});
+    return;
+  }
+  res.redirect(301, urlDatabase[req.params.shortURL].longURL);
 });
 
+// TODO implement/test this
+function checkLogin (req, res, next) {
+  if (!req.session.user_id) {
+    let templateVars = { user: users[req.session.user_id], path: req.path }
+    res.status(401).render("require_login", templateVars);
+    return;
+    // return next({status: 401, message: 'login required'});
+  }
+  next();
+}
+
 // primary views
-app.get("/urls", (req, res) => {
+app.get("/urls", checkLogin, (req, res) => {
   let templateVars = { urls: urlsForUser(req.session.user_id), user: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  if (!req.session.user_id) {
-    res.redirect("/login");
-    return;
-  }
+app.get("/urls/new", checkLogin, (req, res) => {
   let templateVars = { user: users[req.session.user_id] };
   res.render("urls_new", templateVars);
 });
 
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id", checkLogin, (req, res) => {
   let templateVars = { user: users[req.session.user_id], shortURL: req.params.id, longURL: urlDatabase[req.params.id].longURL };
   res.render("urls_show", templateVars);
 });
@@ -158,8 +163,28 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
+// file requests
+app.get("/public/:path/:name", (req, res) => {
+  let fileName = req.params.name;
+  let options = {
+    root: __dirname + '/public/' + req.params.path,
+    dotfiles: 'deny'
+  }
+  res.sendFile(fileName, options, (err) => {
+    if(err) console.log(err);
+  });
+});
+
+// require links to begin with http(s)
+function addProtocol (req, res, next) {
+  if (!req.body.longURL.match(/^http(s?):\/\//)) {
+    req.body.longURL = "http://" + req.body.longURL;
+  }
+  next();
+}
+
 // create a link
-app.post("/urls", (req, res) => {
+app.post("/urls", checkLogin, addProtocol, (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     shortURL: shortURL,
@@ -167,19 +192,26 @@ app.post("/urls", (req, res) => {
     userID: req.session.user_id
   };
   res.redirect("/urls");
-  // TODO force http(s)
 });
 
 // update a link
-app.post("/urls/:id", (req, res) => {
+app.post("/urls/:id", checkLogin, addProtocol, (req, res) => {
   urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
 // delete a link
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delete", checkLogin, (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
+});
+
+// TODO error handling > render a view
+app.use((error, req, res, next) => {
+  console.log(error);
+  error.path = req.path;
+  error.user = users[req.session.user_id];
+  res.status(error.status).render("error", error);
 });
 
 app.listen(PORT, () => {

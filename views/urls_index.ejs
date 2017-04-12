@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
   <title>TinyApp</title>
+  <link rel="stylesheet" type="text/css" href="../public/css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../public/css/urls.css" />
 </head>
 <body>
-  <div>
+  <div class="header">
     <% include partials/_header.ejs %>
   </div>
-  <% if (user) { %>
   <table>
     <tr>
-      <th>Original URL</th>
+      <th id="col1">Original URL</th>
       <th>Shortened form</th>
-      <th>Edit</th>
-      <th>Delete</th>
+      <th></th>
+      <th></th>
     </tr>
     <% for (shortURL in urls) { %>
     <tr>
@@ -25,10 +26,8 @@
     </tr>
     <% } %>
   </table>
-  <a href='urls/new'>Shorten a URL</a>
-  <% } else { %>
-  <p>You must be logged in to view your URLs</p>
-  <% } %>
+  <a id="new-url" href='/urls/new'>Shorten a URL</a>
+
 
 </body>
 </html>

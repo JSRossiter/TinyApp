@@ -8,11 +8,8 @@
   <div class="header">
     <% include partials/_header.ejs %>
   </div>
-  <form action="/register" method="POST">
-    <input id="email" type="email" name="email" style="width: 100px">
-    <input id="password" type="password" name="password" style="width: 50px">
-    <input type="submit" value="Register">
-  </form>
+
+  <p>Error <%= status %>: <%= message %></p>
 
 
 </body>
