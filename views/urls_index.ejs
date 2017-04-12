@@ -7,6 +7,7 @@
   <div>
     <% include partials/_header.ejs %>
   </div>
+  <% if (user) { %>
   <table>
     <tr>
       <th>Original URL</th>
@@ -14,17 +15,20 @@
       <th>Edit</th>
       <th>Delete</th>
     </tr>
-    <% for (shortUrl in urls) { %>
+    <% for (shortURL in urls) { %>
     <tr>
-      <td><%= urls[shortUrl] %></td>
-      <td><%= shortUrl %></td>
+      <td><%= urls[shortURL].longURL %></td>
+      <td><%= shortURL %></td>
       <!-- TODO copy to clipboard? -->
-      <td><a href="<%= shortUrl %>">Edit</a></td>
-      <td><form method="POST" action="/urls/<%= shortUrl %>/delete"><input type="submit" name="delete"></form></td>
+      <td><a href="/urls/<%= shortURL %>">Edit</a></td>
+      <td><form method="POST" action="/urls/<%= shortURL %>/delete"><input type="submit" value="Delete"></form></td>
     </tr>
     <% } %>
   </table>
   <a href='urls/new'>Shorten a URL</a>
+  <% } else { %>
+  <p>You must be logged in to view your URLs</p>
+  <% } %>
 
 </body>
 </html>
