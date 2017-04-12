@@ -3,6 +3,18 @@ const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "test": {
+    id: "test",
+    email: "1@1",
+    password: "1"
+  }
+}
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -18,15 +30,51 @@ app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 
+// register
+app.post("/register", (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send("Please complete both fields");
+    return;
+  }
+  for (let id in users) {
+    if (req.body.email === users[id].email) {
+      res.status(400).send("This username is already in use");
+      return;
+    }
+  }
+
+  userID = generateRandomString();
+  users[userID] = {
+    id: userID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie("user_id", userID);
+  res.redirect("/");
+});
+
 // login
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect("/");
+  for (id in users) {
+    if (req.body.email === users[id].email) {
+      if (req.body.password === users[id].password) {
+        // login successful
+        res.cookie("user_id", users[id].id)
+        res.redirect("/");
+        return;
+      } else {
+        res.status(403).send("Incorrect username or password");
+        return;
+      }
+    }
+  }
+  res.status(403).send("Incorrect username or password");
+  return;
 });
 
 // logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/");
 });
 
@@ -42,24 +90,33 @@ app.get("/u/:shortURL", (req, res) => {
 
 // primary views
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, user: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies["username"] };
+  let templateVars = { user: users[req.cookies.user_id] };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { username: req.cookies["username"], shortURL: req.params.id, longURL: urlDatabase[req.params.id] };
+  let templateVars = { user: users[req.cookies.user_id], shortURL: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
+});
+
+app.get("/register", (req, res) => {
+  let templateVars = { user: users[req.cookies.user_id] }
+  res.render("register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  let templateVars = { user: users[req.cookies.user_id] }
+  res.render("login", templateVars);
 });
 
 // create a link
 app.post("/urls", (req, res) => {
   urlDatabase[generateRandomString()] = req.body.longURL;
-  console.log(urlDatabase);
   res.redirect("/urls");
   // TODO force http(s)
 });
