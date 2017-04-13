@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" type="text/css" href="../public/css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/urls_show.css" />
   <title>TinyApp</title>
 </head>
 <body>
   <div class="header">
     <% include partials/_header.ejs %>
   </div>
-  <h2>ShortURL: <%= shortURL %></h2>
+  <h2>ShortURL: <%= url.shortURL %></h2>
 
-  <form action="/urls/<%= shortURL %>" method="POST">
-    <input id="longURL" type="text" name="longURL" placeholder="<%= longURL %>" style="width: 300px">
+  <form action="/urls/<%= url.shortURL %>?_method=PUT" method="POST">
+    <input id="longURL" type="text" name="longURL" placeholder="<%= url.longURL %>" style="width: 300px">
     <input type="submit" value="Update">
   </form>
+
+  <table>
+    <tr>
+      <th>Time</th>
+      <th>User ID</th>
+    </tr>
+    <tr>
+      <% for (view in url.viewLog) { %>
+      <td><%= new Date(url.viewLog[view].timestamp).toLocaleString() %></td>
+      <td><%= url.viewLog[view].visitor_id %></td>
+      <% } %>
+    </tr>
+  </table>
 </body>
 </html>

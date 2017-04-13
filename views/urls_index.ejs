@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <title>TinyApp</title>
-  <link rel="stylesheet" type="text/css" href="../public/css/_header.css" />
-  <link rel="stylesheet" type="text/css" href="../public/css/urls.css" />
+  <link rel="stylesheet" type="text/css" href="../css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/urls.css" />
 </head>
 <body>
   <div class="header">
@@ -13,16 +13,20 @@
     <tr>
       <th id="col1">Original URL</th>
       <th>Shortened form</th>
+      <th>Total Views</th>
+      <th>Unique Views</th>
       <th></th>
       <th></th>
     </tr>
     <% for (shortURL in urls) { %>
     <tr>
-      <td><%= urls[shortURL].longURL %></td>
-      <td><%= shortURL %></td>
+      <td><a href="<%= urls[shortURL].longURL %>"></a><%= urls[shortURL].longURL %></td>
+      <td>/u/<%= shortURL %></td>
       <!-- TODO copy to clipboard? -->
+      <td class="views"><%= urls[shortURL].totalViews %></td>
+      <td class="views"><%= urls[shortURL].uniqueViews %></td>
       <td><a href="/urls/<%= shortURL %>">Edit</a></td>
-      <td><form method="POST" action="/urls/<%= shortURL %>/delete"><input type="submit" value="Delete"></form></td>
+      <td><form method="POST" action="/urls/<%= shortURL %>?_method=DELETE"><input type="submit" value="Delete"></form></td>
     </tr>
     <% } %>
   </table>

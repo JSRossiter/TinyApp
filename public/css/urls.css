@@ -13,3 +13,7 @@ th {
 a#new-url {
   margin: 0 0 0 50px;
 }
+
+td.views {
+  text-align: center;
+}
