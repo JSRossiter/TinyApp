@@ -4,12 +4,13 @@
   <title>TinyApp</title>
   <link rel="stylesheet" type="text/css" href="../css/_header.css" />
   <link rel="stylesheet" type="text/css" href="../css/urls.css" />
+  <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
 </head>
 <body>
   <div class="header">
     <% include partials/_header.ejs %>
   </div>
-  <table>
+  <table class="table table-striped">
     <tr>
       <th id="col1">Original URL</th>
       <th>Shortened form</th>
@@ -25,12 +26,12 @@
       <!-- TODO copy to clipboard? -->
       <td class="views"><%= urls[shortURL].totalViews %></td>
       <td class="views"><%= urls[shortURL].uniqueViews %></td>
-      <td><a href="/urls/<%= shortURL %>">Edit</a></td>
-      <td><form method="POST" action="/urls/<%= shortURL %>?_method=DELETE"><input type="submit" value="Delete"></form></td>
+      <td><a href="/urls/<%= shortURL %>" class="btn btn-default btn-sm">Edit</a></td>
+      <td><form method="POST" action="/urls/<%= shortURL %>?_method=DELETE"><input type="submit" value="Delete" class="btn btn-default btn-sm"></form></td>
     </tr>
     <% } %>
   </table>
-  <a id="new-url" href='/urls/new'>Shorten a URL</a>
+  <a id="new-url" href='/urls/new' class="btn btn-default btn-lg">Shorten a URL</a>
 
 
 </body>

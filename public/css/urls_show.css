@@ -1,0 +1,13 @@
+h2 {
+  margin: 25px 0 0 125px;
+}
+
+form {
+  margin: 25px 0 0 50px;
+}
+
+table.table-striped {
+  min-width: 450px;
+  width: 50%;
+  margin-left: 50px;
+}

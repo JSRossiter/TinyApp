@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="../css/landing_page.css" />
   <title>TinyApp</title>
 </head>
 <body>
-  <div>
-    <h1>TinyApp</h1>
-    <h3>For all your URL shortening needs</h3>
-  </div>
-  <div>
-    <!-- login and register links/buttons -->
-    <a id="login" href="/login">Login</a>
-    <a id="register" href="/register">Register</a>
+  <div class="site-wrapper">
+    <div class="site-wrapper-inner">
+      <div class="cover-container">
+        <div class="inner cover">
+          <h1 class="cover-heading">TinyApp</h1>
+          <p class="lead">For all your URL shortening needs</p>
+          <form>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Shorten my URL!">
+              <span class="input-group-btn">
+                <button class="btn btn-secondary" type="button">Go!</button>
+              </span>
+            </div>
+          </form>
+          <p class="lead">
+            <a href="/login" class="btn btn-lg btn-default">Login</a>
+            <a href="/register" class="btn btn-lg btn-default">Register</a>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

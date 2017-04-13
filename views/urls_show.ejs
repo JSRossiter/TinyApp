@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <link rel="stylesheet" type="text/css" href="../css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="../css/urls_show.css" />
   <title>TinyApp</title>
 </head>
@@ -9,14 +10,14 @@
   <div class="header">
     <% include partials/_header.ejs %>
   </div>
-  <h2>ShortURL: <%= url.shortURL %></h2>
+  <h2>ShortURL: /u/<%= url.shortURL %></h2>
 
   <form action="/urls/<%= url.shortURL %>?_method=PUT" method="POST">
     <input id="longURL" type="text" name="longURL" placeholder="<%= url.longURL %>" style="width: 300px">
     <input type="submit" value="Update">
   </form>
-
-  <table>
+  <table class="table table-striped">
+    <caption><h3>View Log</h3></caption>
     <tr>
       <th>Time</th>
       <th>User ID</th>
