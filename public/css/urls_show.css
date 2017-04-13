@@ -14,3 +14,10 @@ table.table-striped {
 div.info {
   margin-left: 50px
 }
+
+img.copy {
+  height: 32px;
+  width: 28px;
+  cursor: pointer;
+  margin-left: 15px;
+}

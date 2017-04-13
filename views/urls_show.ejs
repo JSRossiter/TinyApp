@@ -4,6 +4,7 @@
   <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="../css/_header.css" />
   <link rel="stylesheet" type="text/css" href="../css/urls_show.css" />
+  <script type="text/javascript" src="../resources/clipboard.min.js"></script>
   <title>TinyApp</title>
 </head>
 <body>
@@ -11,7 +12,7 @@
     <% include partials/_header.ejs %>
   </div>
   <div class="info">
-    <h2>ShortURL: /u/<%= url.shortURL %></h2>
+    <h2>ShortURL: /u/<%= url.shortURL %>  <img src="../resources/clipboard.svg" class="copy" data-clipboard-text="localhost:8080/u/<%= url.shortURL %>"></h2>
     <h5>Created: <%= new Date(url.dateCreated).toLocaleString() %></h5>
     <form action="/urls/<%= url.shortURL %>?_method=PUT" method="POST">
       <input id="longURL" type="text" name="longURL" placeholder="<%= url.longURL %>" style="width: 400px">
@@ -31,5 +32,16 @@
       <% } %>
     </table>
   </div>
+  <script type="text/javascript">
+    var clipboard = new Clipboard('.copy');
+    clipboard.on('success', function(e) {
+        console.log(e);
+    });
+    clipboard.on('error', function(e) {
+        console.log(e);
+    });
+  </script>
 </body>
 </html>
+
+

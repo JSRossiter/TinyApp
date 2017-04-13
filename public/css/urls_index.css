@@ -5,5 +5,5 @@ a#new-url {
 img.copy {
   height: 22px;
   width: 19px;
-  margin-left: 8px;
+  cursor: pointer;
 }

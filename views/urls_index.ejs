@@ -16,6 +16,7 @@
       <tr>
         <th id="col1">Original URL</th>
         <th>Shortened form</th>
+        <th></th>
         <th>Date created</th>
         <th>Total views</th>
         <th>Unique views</th>
@@ -25,8 +26,9 @@
       <% for (shortURL in urls) { %>
       <tr>
         <td><a href="<%= urls[shortURL].longURL %>"></a><%= urls[shortURL].longURL %></td>
-        <td>/u/<%= shortURL %><img src="../resources/clipboard.svg" class="copy" data-clipboard-text="http://localhost:8080/u/<%= shortURL %>"></td>
-        <!-- TODO copy to clipboard? -->
+        <td>/u/<%= shortURL %></td>
+        <!-- copy to clipboard -->
+        <td><img src="../resources/clipboard.svg" class="copy" data-clipboard-text="localhost:8080/u/<%= shortURL %>"></td>
         <td><%= new Date(urls[shortURL].dateCreated).toLocaleString() %></td>
         <td class="views"><%= urls[shortURL].totalViews %></td>
         <td class="views"><%= urls[shortURL].uniqueViews %></td>
