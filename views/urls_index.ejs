@@ -2,36 +2,40 @@
 <html lang="en">
 <head>
   <title>TinyApp</title>
-  <link rel="stylesheet" type="text/css" href="../css/_header.css" />
-  <link rel="stylesheet" type="text/css" href="../css/urls.css" />
   <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/urls_index.css" />
 </head>
 <body>
   <div class="header">
     <% include partials/_header.ejs %>
   </div>
-  <table class="table table-striped">
-    <tr>
-      <th id="col1">Original URL</th>
-      <th>Shortened form</th>
-      <th>Total Views</th>
-      <th>Unique Views</th>
-      <th></th>
-      <th></th>
-    </tr>
-    <% for (shortURL in urls) { %>
-    <tr>
-      <td><a href="<%= urls[shortURL].longURL %>"></a><%= urls[shortURL].longURL %></td>
-      <td>/u/<%= shortURL %></td>
-      <!-- TODO copy to clipboard? -->
-      <td class="views"><%= urls[shortURL].totalViews %></td>
-      <td class="views"><%= urls[shortURL].uniqueViews %></td>
-      <td><a href="/urls/<%= shortURL %>" class="btn btn-default btn-sm">Edit</a></td>
-      <td><form method="POST" action="/urls/<%= shortURL %>?_method=DELETE"><input type="submit" value="Delete" class="btn btn-default btn-sm"></form></td>
-    </tr>
-    <% } %>
-  </table>
-  <a id="new-url" href='/urls/new' class="btn btn-default btn-lg">Shorten a URL</a>
+  <div class=info>
+    <table class="table table-striped">
+      <tr>
+        <th id="col1">Original URL</th>
+        <th>Shortened form</th>
+        <th>Date created</th>
+        <th>Total views</th>
+        <th>Unique views</th>
+        <th></th>
+        <th></th>
+      </tr>
+      <% for (shortURL in urls) { %>
+      <tr>
+        <td><a href="<%= urls[shortURL].longURL %>"></a><%= urls[shortURL].longURL %></td>
+        <td>/u/<%= shortURL %></td>
+        <!-- TODO copy to clipboard? -->
+        <td><%= new Date(urls[shortURL].dateCreated).toLocaleString() %></td>
+        <td class="views"><%= urls[shortURL].totalViews %></td>
+        <td class="views"><%= urls[shortURL].uniqueViews %></td>
+        <td><a href="/urls/<%= shortURL %>" class="btn btn-default btn-sm">Edit</a></td>
+        <td><form method="POST" action="/urls/<%= shortURL %>?_method=DELETE"><input type="submit" value="Delete" class="btn btn-default btn-sm" /></form></td>
+      </tr>
+      <% } %>
+    </table>
+    <a id="new-url" href='/urls/new' class="btn btn-default btn-lg">Shorten a URL</a>
+  </div>
 
 
 </body>

@@ -12,11 +12,11 @@
         <div class="inner cover">
           <h1 class="cover-heading">TinyApp</h1>
           <p class="lead">For all your URL shortening needs</p>
-          <form>
+          <form action="/" method="POST">
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Shorten my URL!">
+              <input type="text" class="form-control" placeholder="Shorten my URL!" name="longURL" />
               <span class="input-group-btn">
-                <button class="btn btn-secondary" type="button">Go!</button>
+                <button class="btn btn-secondary" type="submit">Go!</button>
               </span>
             </div>
           </form>

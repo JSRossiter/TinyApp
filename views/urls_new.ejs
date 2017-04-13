@@ -3,16 +3,33 @@
 <head>
   <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="../css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/urls_new.css" />
   <title>TinyApp</title>
 </head>
 <body>
   <div class="header">
     <% include partials/_header.ejs %>
   </div>
-    <form action="/urls" method="POST">
-      <label for="longURL">Enter a URL:</label>
-      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
-      <input type="submit" value="Submit">
-    </form>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-offset-1 col-md-10">
+        <div class="form-login">
+        <form action="/urls" method="POST">
+          <label for="longURL" class="longURL">Enter a URL:</label>
+          <input id="longURL" type="text" name="longURL" placeholder="http://" style="width:77%" />
+          <div class="wrapper">
+            <span class="group-btn">
+              <input type="submit" class="btn btn-primary btn-lg value="Submit">
+            </span>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
 </body>
 </html>

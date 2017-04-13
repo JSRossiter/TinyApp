@@ -17,9 +17,9 @@ div.header {
 }
 
 h1.header {
-  /*font-family: VeraSe;*/
+  font-family: VeraSe;
   display: inline-block;
-  padding: 25px 100px;
+  padding: 25px 100px 40px;
   text-decoration: none;
   color: white;
 
@@ -34,8 +34,8 @@ form#logout {
 a.header {
   display: inline-block;
   float: right;
-  margin: 10px 25px 0 0;
-  color: white;
+  margin: 15px 25px 0 0;
+  width: 90px;
 
 }
 

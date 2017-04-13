@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="../css/_header.css" />
+  <link rel="stylesheet" type="text/css" href="../css/login.css" />
   <title>TinyApp</title>
 </head>
 <body>
@@ -10,15 +11,27 @@
     <% include partials/_header.ejs %>
   </div>
 
-  <p>You must be logged in to view this page</p>
-  <!-- TODO login required -->
-  <!-- TODO if successful login load page originally attempted? -->
- <!--  <form action="/login" method="POST">
-    <input id="email" type="email" name="email" style="width: 100px">
-    <input id="password" type="password" name="password" style="width: 50px">
-    <input type="submit" value="Login">
-  </form> -->
-
-
+  <p style="font-size: 2.5em;text-align: center; margin-top: 10%">You must be logged in to view this page</p>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-offset-4 col-md-4">
+        <div class="form-login">
+        <form action="/login" method="POST">
+          <label for="email">Email</label>
+          <input type="email" id="email" class="form-control input-sm chat-input" name="email" placeholder="Please enter your email" /></br>
+          <label for="email">Password</label>
+          <input type="password" id="password" class="form-control input-sm chat-input" name="password" placeholder="Please enter your password" /></br>
+          <input type="hidden" name="path" value="<%= path %>" />
+          <div class="wrapper">
+            <span class="group-btn">
+              <input type="submit" class="btn btn-primary btn-md" value="Login">
+            </span>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
+

@@ -6,11 +6,6 @@ const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 const PORT = process.env.PORT || 8080; // default port 8080
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
   "test": {
     id: "test",
     email: "1@1",
@@ -22,10 +17,19 @@ const urlDatabase = {
     shortURL: "b2xy52",
     longURL: "http://www.lighthouselabs.ca",
     userID: "test",
-    totalViews: 0,
-    uniqueViews: 0,
+    totalViews: 3,
+    uniqueViews: 2,
+    dateCreated: 1492030283873,
     viewLog: [{
       timestamp: 1492038283873,
+      visitor_id: "g56egr"
+      },
+      {
+      timestamp: 1492048283873,
+      visitor_id: "85mjgr"
+      },
+      {
+      timestamp: 1492051283873,
       visitor_id: "g56egr"
       }]
   },
@@ -35,6 +39,7 @@ const urlDatabase = {
     userID: "test",
     totalViews: 0,
     uniqueViews: 0,
+    dateCreated: 1492031283873,
     viewLog: [{
       timestamp: 1492038283879,
       visitor_id: "85mjgr"
@@ -54,9 +59,8 @@ app.set("view engine", "ejs");
 app.use(methodOverride('_method'));
 app.use(express.static('public'));
 
-
 // generates random 6 character alphanumeric string
-function generateRandomString() {
+function generateRandomString () {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let result = '';
   for (var i = 0; i < 6; i++) {
@@ -65,8 +69,9 @@ function generateRandomString() {
   return result;
 }
 
+// TODO handle deleted user profile?
 function requireLogin (req, res, next) {
-  if (!req.session.user_id) {
+  if (!users[req.session.user_id]) {
     let templateVars = { user: null, path: req.path }
     res.status(401).render("require_login", templateVars);
     return;
@@ -76,10 +81,43 @@ function requireLogin (req, res, next) {
 
 // if logged in send to /urls
 function checkLogin (req, res, next) {
-  if (req.session.user_id) {
+  if (users[req.session.user_id]) {
     res.redirect("/urls");
     return;
   }
+  next();
+}
+
+function newUser (req, res, next) {
+  if (!req.body.email || !req.body.password) {
+    next({status: 409, message: 'missing email or password'});
+    return;
+  }
+  if(findUser(req.body.email)) {
+    next({status: 409, message: 'user already exists'});
+    return;
+  }
+  userID = generateRandomString();
+  users[userID] = {
+    id: userID,
+    email: req.body.email,
+    password: bcrypt.hashSync(req.body.password, 10)
+  };
+  req.session.user_id = userID;
+  next();
+}
+
+function createURL (req, res, next) {
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = {
+    shortURL: shortURL,
+    longURL: req.body.longURL,
+    userID: req.session.user_id,
+    dateCreated: Date.now(),
+    totalViews: 0,
+    uniqueViews: 0,
+    viewLog: []
+  };
   next();
 }
 
@@ -136,26 +174,23 @@ function trackView (req, res, next) {
 }
 
 // home page handler
-app.get("/", (req, res) => {
-  if (req.session.user_id) res.redirect("/urls");
-  else res.render("landing_page");
-});
-
-// logout
-app.post("/logout", (req, res) => {
-  req.session.user_id = null;
-  res.redirect("/");
-});
-
-// follow a link
-app.get("/u/:shortURL", checkLink, trackView, (req, res) => {
-  res.redirect(302, urlDatabase[req.params.shortURL].longURL);
-});
-
-app.get("/urls/new", requireLogin, (req, res) => {
-  let templateVars = { user: users[req.session.user_id] };
-  res.render("urls_new", templateVars);
-});
+app.route("/")
+  .get((req, res) => {
+    if (users[req.session.user_id]) res.redirect("/urls");
+    else res.render("landing_page");
+  })
+  .post((req, res, next) => {
+    if (!req.body.longURL) {
+      res.redirect("/");
+      return;
+    }
+    next();
+  }, addProtocol,
+  (req, res, next) => {
+    req.session.longURL = req.body.longURL;
+    let templateVars = { user: users[req.session.user_id] };
+    res.render("home_creation", templateVars);
+  });
 
 app.route("/urls")
   .get(requireLogin, (req, res) => {
@@ -163,18 +198,14 @@ app.route("/urls")
     res.render("urls_index", templateVars);
   })
   // create a link
-  .post(requireLogin, addProtocol, (req, res) => {
-    let shortURL = generateRandomString();
-    urlDatabase[shortURL] = {
-      shortURL: shortURL,
-      longURL: req.body.longURL,
-      userID: req.session.user_id,
-      totalViews: 0,
-      uniqueViews: 0,
-      viewLog: []
-    };
+  .post(requireLogin, addProtocol, createURL, (req, res) => {
     res.redirect("/urls");
   });
+
+app.get("/urls/new", requireLogin, (req, res) => {
+  let templateVars = { user: users[req.session.user_id] };
+  res.render("urls_new", templateVars);
+});
 
 app.route("/urls/:shortURL")
   .get(checkLink, requireLogin, (req, res, next) => {
@@ -203,24 +234,25 @@ app.route("/register")
     let templateVars = { user: users[req.session.user_id] }
     res.render("register", templateVars);
   })
-  .post((req, res, next) => {
-    if (!req.body.email || !req.body.password) {
-      next({status: 409, message: 'missing email or password'});
-      return;
-    }
-    if(findUser(req.body.email)) {
-      next({status: 409, message: 'user already exists'});
-      return;
-    }
-    userID = generateRandomString();
-    users[userID] = {
-      id: userID,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 10)
-    };
-    req.session.user_id = userID;
+  .post(newUser, (req, res, next) => {
+    if(req.session.longURL) {
+      req.body.longURL = req.session.longURL;
+      req.session.longURL = null;
+      createURL(req, res, next);
+    } else next();
+  }, (req, res, next) => {
     res.redirect("/urls");
   });
+
+  //   if (!req.session.longURL) {
+  //     res.redirect("/urls");
+  //     return;
+  //   }
+  //   req.body.longURL = req.session.longURL;
+  //   next();
+  // }, createURL, (req, res, next) => {
+  //   res.redirect("/urls");
+  // });
 
 app.route("/login")
   .get(checkLogin, (req, res) => {
@@ -235,13 +267,31 @@ app.route("/login")
     let user = findUser(req.body.email);
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
       req.session.user_id = user.id;
-      res.redirect('/urls');
     } else {
-      next({status: 409, message: 'bad credentials'});
+      next({status: 409, message: 'incorrect email or password'});
     }
+    next();
+  }, (req, res, next) => {
+    if(req.session.longURL) {
+      req.body.longURL = req.session.longURL;
+      req.session.longURL = null;
+      createURL(req, res, next);
+    } else next();
+  }, (req, res, next) => {
+    if(req.body.path) res.redirect(req.body.path);
+    else res.redirect("/urls");
   });
 
+// logout
+app.post("/logout", (req, res) => {
+  req.session.user_id = null;
+  res.redirect("/");
+});
 
+// follow a link
+app.get("/u/:shortURL", checkLink, trackView, (req, res) => {
+  res.redirect(302, urlDatabase[req.params.shortURL].longURL);
+});
 
 // TODO error handling > render a view
 app.use((error, req, res, next) => {
