@@ -50,7 +50,7 @@ const urlDatabase = {
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
-  keys: ['f54gsrg46'],
+  keys: ['its_a_secret'],
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -69,7 +69,6 @@ function generateRandomString () {
   return result;
 }
 
-// TODO handle deleted user profile?
 function requireLogin (req, res, next) {
   if (!users[req.session.user_id]) {
     let templateVars = { user: null, path: req.path }
@@ -293,7 +292,6 @@ app.get("/u/:shortURL", checkLink, trackView, (req, res) => {
   res.redirect(302, urlDatabase[req.params.shortURL].longURL);
 });
 
-// TODO error handling > render a view
 app.use((error, req, res, next) => {
   console.log(error);
   error.path = req.path;

@@ -5,6 +5,7 @@
   <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="../css/_header.css" />
   <link rel="stylesheet" type="text/css" href="../css/urls_index.css" />
+  <script type="text/javascript" src="../resources/clipboard.min.js"></script>
 </head>
 <body>
   <div class="header">
@@ -24,7 +25,7 @@
       <% for (shortURL in urls) { %>
       <tr>
         <td><a href="<%= urls[shortURL].longURL %>"></a><%= urls[shortURL].longURL %></td>
-        <td>/u/<%= shortURL %></td>
+        <td>/u/<%= shortURL %><img src="../resources/clipboard.svg" class="copy" data-clipboard-text="http://localhost:8080/u/<%= shortURL %>"></td>
         <!-- TODO copy to clipboard? -->
         <td><%= new Date(urls[shortURL].dateCreated).toLocaleString() %></td>
         <td class="views"><%= urls[shortURL].totalViews %></td>
@@ -37,6 +38,15 @@
     <a id="new-url" href='/urls/new' class="btn btn-default btn-lg">Shorten a URL</a>
   </div>
 
+  <script type="text/javascript">
+    var clipboard = new Clipboard('.copy');
+    clipboard.on('success', function(e) {
+        console.log(e);
+    });
+    clipboard.on('error', function(e) {
+        console.log(e);
+    });
+  </script>
 
 </body>
 </html>

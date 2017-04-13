@@ -1,3 +1,9 @@
 a#new-url {
   margin: 0 0 0 50px;
 }
+
+img.copy {
+  height: 22px;
+  width: 19px;
+  margin-left: 8px;
+}
