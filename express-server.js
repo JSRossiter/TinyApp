@@ -65,6 +65,24 @@ function generateRandomString() {
   return result;
 }
 
+function requireLogin (req, res, next) {
+  if (!req.session.user_id) {
+    let templateVars = { user: null, path: req.path }
+    res.status(401).render("require_login", templateVars);
+    return;
+  }
+  next();
+}
+
+// if logged in send to /urls
+function checkLogin (req, res, next) {
+  if (req.session.user_id) {
+    res.redirect("/urls");
+    return;
+  }
+  next();
+}
+
 // filters urlDatabase by userID
 function urlsForUser (userID) {
   output = {};
@@ -91,7 +109,7 @@ function addProtocol (req, res, next) {
 // check if link is in database
 function checkLink (req, res, next) {
   if (!urlDatabase[req.params.shortURL]) {
-    next({status: 400, message: 'link not in database'});
+    next({status: 404, message: 'link not in database'});
     return;
   }
   next();
@@ -134,27 +152,18 @@ app.get("/u/:shortURL", checkLink, trackView, (req, res) => {
   res.redirect(302, urlDatabase[req.params.shortURL].longURL);
 });
 
-function checkLogin (req, res, next) {
-  if (!req.session.user_id) {
-    let templateVars = { user: null, path: req.path }
-    res.status(401).render("require_login", templateVars);
-    return;
-  }
-  next();
-}
-
-app.get("/urls/new", checkLogin, (req, res) => {
+app.get("/urls/new", requireLogin, (req, res) => {
   let templateVars = { user: users[req.session.user_id] };
   res.render("urls_new", templateVars);
 });
 
 app.route("/urls")
-  .get(checkLogin, (req, res) => {
+  .get(requireLogin, (req, res) => {
     let templateVars = { urls: urlsForUser(req.session.user_id), user: users[req.session.user_id] };
     res.render("urls_index", templateVars);
   })
   // create a link
-  .post(checkLogin, addProtocol, (req, res) => {
+  .post(requireLogin, addProtocol, (req, res) => {
     let shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       shortURL: shortURL,
@@ -167,27 +176,30 @@ app.route("/urls")
     res.redirect("/urls");
   });
 
-app.route("/urls/:id")
-  .get(checkLogin, (req, res) => {
+app.route("/urls/:shortURL")
+  .get(checkLink, requireLogin, (req, res, next) => {
+    if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
+      return next({status: 403, message: 'incorrect user'})
+    }
     let templateVars = {
       user: users[req.session.user_id],
-      url: urlDatabase[req.params.id]
+      url: urlDatabase[req.params.shortURL]
     };
     res.render("urls_show", templateVars);
   })
   // update a link
-  .put(checkLogin, addProtocol, (req, res) => {
-    urlDatabase[req.params.id].longURL = req.body.longURL;
+  .put(requireLogin, addProtocol, (req, res) => {
+    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect("/urls");
   })
   // delete a link
-  .delete(checkLogin, (req, res) => {
-    delete urlDatabase[req.params.id]
+  .delete(requireLogin, (req, res) => {
+    delete urlDatabase[req.params.shortURL]
     res.redirect("/urls");
   });
 
 app.route("/register")
-  .get((req, res) => {
+  .get(checkLogin, (req, res) => {
     let templateVars = { user: users[req.session.user_id] }
     res.render("register", templateVars);
   })
@@ -211,7 +223,7 @@ app.route("/register")
   });
 
 app.route("/login")
-  .get((req, res) => {
+  .get(checkLogin, (req, res) => {
     let templateVars = { user: users[req.session.user_id] }
     res.render("login", templateVars);
   })
