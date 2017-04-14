@@ -31,7 +31,8 @@ const urlDatabase = {
       {
       timestamp: 1492051283873,
       visitor_id: "g56egr"
-      }]
+      }
+    ]
   },
   "9sm99K": {
     shortURL: "9sm99K",
@@ -43,7 +44,8 @@ const urlDatabase = {
     viewLog: [{
       timestamp: 1492038283879,
       visitor_id: "85mjgr"
-      }]
+      }
+    ]
   }
 };
 
@@ -58,6 +60,11 @@ app.use(cookieSession({
 app.set("view engine", "ejs");
 app.use(methodOverride('_method'));
 app.use(express.static('public'));
+
+app.use((req,res,next) => {
+  app.locals.user = users[req.session.user_id];
+  next();
+});
 
 // generates random 6 character alphanumeric string
 function generateRandomString () {
@@ -87,6 +94,12 @@ function checkLogin (req, res, next) {
   next();
 }
 
+function checkAccess (req, res, next) {
+  if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
+    return next({status: 403, message: 'you do not have access to this url'})
+  } else next();
+}
+
 function newUser (req, res, next) {
   if (!req.body.email || !req.body.password) {
     next({status: 409, message: 'missing email or password'});
@@ -104,6 +117,28 @@ function newUser (req, res, next) {
   };
   req.session.user_id = userID;
   next();
+}
+
+function authenticate (req, res, next) {
+  if (!req.body.email || !req.body.password) {
+    next({status: 409, message: 'missing email or password'});
+    return;
+  }
+  let user = findUser(req.body.email);
+  if (user && bcrypt.compareSync(req.body.password, user.password)) {
+    req.session.user_id = user.id;
+  } else {
+    next({status: 409, message: 'incorrect email or password'});
+  }
+  next();
+}
+
+function checkSubmission (req, res, next) {
+  if(req.session.longURL) {
+    req.body.longURL = req.session.longURL;
+    req.session.longURL = null;
+    createURL(req, res, next);
+  } else next();
 }
 
 function createURL (req, res, next) {
@@ -187,14 +222,12 @@ app.route("/")
   }, addProtocol,
   (req, res, next) => {
     req.session.longURL = req.body.longURL;
-    let templateVars = { user: users[req.session.user_id] };
-    res.render("home_creation", templateVars);
+    res.render("home_creation");
   });
 
 app.route("/urls")
   .get(requireLogin, (req, res) => {
-    let templateVars = { urls: urlsForUser(req.session.user_id), user: users[req.session.user_id] };
-    res.render("urls_index", templateVars);
+    res.render("urls_index", { urls: urlsForUser(req.session.user_id) });
   })
   // create a link
   .post(requireLogin, addProtocol, createURL, (req, res) => {
@@ -202,81 +235,38 @@ app.route("/urls")
   });
 
 app.get("/urls/new", requireLogin, (req, res) => {
-  let templateVars = { user: users[req.session.user_id] };
-  res.render("urls_new", templateVars);
+  res.render("urls_new");
 });
 
 app.route("/urls/:shortURL")
-  .get(checkLink, requireLogin, (req, res, next) => {
-    if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
-      return next({status: 403, message: 'incorrect user'})
-    }
-    let templateVars = {
-      user: users[req.session.user_id],
-      url: urlDatabase[req.params.shortURL]
-    };
-    res.render("urls_show", templateVars);
+  .all(checkLink, requireLogin, checkAccess)
+  .get((req, res, next) => {
+    res.render("urls_show", { url: urlDatabase[req.params.shortURL] });
   })
   // update a link
-  .put(requireLogin, addProtocol, (req, res) => {
+  .put(addProtocol, (req, res) => {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect("/urls");
   })
   // delete a link
-  .delete(requireLogin, (req, res) => {
+  .delete((req, res) => {
     delete urlDatabase[req.params.shortURL]
     res.redirect("/urls");
   });
 
 app.route("/register")
   .get(checkLogin, (req, res) => {
-    let templateVars = { user: users[req.session.user_id] }
-    res.render("register", templateVars);
+    res.render("register");
   })
-  .post(newUser, (req, res, next) => {
-    if(req.session.longURL) {
-      req.body.longURL = req.session.longURL;
-      req.session.longURL = null;
-      createURL(req, res, next);
-    } else next();
-  }, (req, res, next) => {
+  .post(newUser, checkSubmission, (req, res, next) => {
     res.redirect("/urls");
   });
 
-  //   if (!req.session.longURL) {
-  //     res.redirect("/urls");
-  //     return;
-  //   }
-  //   req.body.longURL = req.session.longURL;
-  //   next();
-  // }, createURL, (req, res, next) => {
-  //   res.redirect("/urls");
-  // });
-
 app.route("/login")
   .get(checkLogin, (req, res) => {
-    let templateVars = { user: users[req.session.user_id] }
-    res.render("login", templateVars);
+    res.render("login");
   })
-  .post((req, res, next) => {
-    if (!req.body.email || !req.body.password) {
-      next({status: 409, message: 'missing email or password'});
-      return;
-    }
-    let user = findUser(req.body.email);
-    if (user && bcrypt.compareSync(req.body.password, user.password)) {
-      req.session.user_id = user.id;
-    } else {
-      next({status: 409, message: 'incorrect email or password'});
-    }
-    next();
-  }, (req, res, next) => {
-    if(req.session.longURL) {
-      req.body.longURL = req.session.longURL;
-      req.session.longURL = null;
-      createURL(req, res, next);
-    } else next();
-  }, (req, res, next) => {
+  .post(authenticate, checkSubmission, (req, res, next) => {
     if(req.body.path) res.redirect(req.body.path);
     else res.redirect("/urls");
   });
