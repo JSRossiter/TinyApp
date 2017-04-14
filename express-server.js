@@ -23,7 +23,7 @@ app.set("view engine", "ejs");
 
 app.use(express.static('public'));
 app.use((req, res, next) => {
-  app.locals.user = userService.findUserById(req.session.user_id);
+  app.locals.user = userService.findUserById(req.session.userID);
   next();
 });
 app.use("/urls", urls);
@@ -35,7 +35,7 @@ app.route("/")
     if (app.locals.user) {
       res.redirect("/urls");
     } else {
-      res.render("landing_page");
+      res.redirect("/login");
     }
   })
   .post((req, res, next) => {

@@ -2,13 +2,14 @@ const express = require('express');
 const methodOverride = require('method-override');
 
 const {urlService} = require('../services/url-services');
+const {userService} = require('../services/user-services');
 
 const router = express.Router();
 
 router.use(methodOverride('_method'));
 
 function requireLogin (req, res, next) {
-  if (!req.session.userID) {
+  if (!userService.findUserById(req.session.userID)) {
     let templateVars = { user: null, path: `/urls${req.path}` };
     res.status(401).render("require_login", templateVars);
     return;

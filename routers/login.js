@@ -5,7 +5,7 @@ const {userService} = require('../services/user-services');
 
 // if logged in send to /urls
 function checkLogin (req, res, next) {
-  if (req.app.locals.user) {
+  if (userService.findUserById(req.session.userID)) {
     res.redirect("/urls");
     return;
   }
