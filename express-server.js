@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 
 const {generateRandomString} = require('./utils');
 const {userService} = require('./services/user-services');
@@ -9,7 +9,7 @@ const {urlService} = require('./services/url-services');
 const urls = require('./routers/urls');
 const login = require('./routers/login');
 
-const PORT = process.env.PORT || 8080; // default port 8080
+const PORT = process.env.PORT || 8080;
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
@@ -17,12 +17,12 @@ app.use(cookieSession({
   keys: ['its_a_secret'],
 
   // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  maxAge: 24 * 60 * 60 * 1000
 }));
 app.set("view engine", "ejs");
 
 app.use(express.static('public'));
-app.use((req,res,next) => {
+app.use((req, res, next) => {
   app.locals.user = userService.findUserById(req.session.user_id);
   next();
 });
@@ -32,8 +32,11 @@ app.use(login);
 // home page handler
 app.route("/")
   .get((req, res) => {
-    if (app.locals.user) res.redirect("/urls");
-    else res.render("landing_page");
+    if (app.locals.user) {
+      res.redirect("/urls");
+    } else {
+      res.render("landing_page");
+    }
   })
   .post((req, res, next) => {
     if (!req.body.longURL) {
@@ -49,8 +52,10 @@ app.route("/")
 app.get("/u/:shortURL", (req, res, next) => {
   const url = urlService.getURL(req.params.shortURL);
   if (url) {
-    if (!req.session.visitor_id) req.session.visitor_id = generateRandomString();
-    urlService.trackView(url.shortURL, req.session.visitor_id);
+    if (!req.session.visitorId) {
+      req.session.visitorId = generateRandomString();
+    }
+    urlService.trackView(url.shortURL, req.session.visitorId);
     res.redirect(302, url.longURL);
   } else {
     next({status: 404, message: 'link not in database'});

@@ -9,16 +9,16 @@ const urlDatabase = {
     dateCreated: 1492030283873,
     viewLog: [{
       timestamp: 1492038283873,
-      visitor_id: "g56egr"
-      },
-      {
+      visitorId: "g56egr"
+    },
+    {
       timestamp: 1492048283873,
-      visitor_id: "85mjgr"
-      },
-      {
+      visitorId: "85mjgr"
+    },
+    {
       timestamp: 1492051283873,
-      visitor_id: "g56egr"
-      }
+      visitorId: "g56egr"
+    }
     ]
   },
   "9sm99K": {
@@ -30,8 +30,8 @@ const urlDatabase = {
     dateCreated: 1492031283873,
     viewLog: [{
       timestamp: 1492038283879,
-      visitor_id: "85mjgr"
-      }
+      visitorId: "85mjgr"
+    }
     ]
   }
 };
@@ -42,19 +42,20 @@ function getURL (shortURL) {
 
 // require links to begin with http(s)
 function addProtocol (longURL) {
-  if (!longURL.match(/^http(s?):\/\//)) {
-    longURL = "http://" + longURL;
+  let newURL = longURL;
+  if (!newURL.match(/^http(s?):\/\//)) {
+    newURL = "http://" + newURL;
   }
-  return longURL;
+  return newURL;
 }
 
-function createURL (longURL, user_id) {
+function createURL (longURL, userID) {
   const shortURL = generateRandomString();
-  longURL = addProtocol(longURL);
+  newLongURL = addProtocol(longURL);
   urlDatabase[shortURL] = {
     shortURL: shortURL,
-    longURL: longURL,
-    userID: user_id,
+    longURL: newLongURL,
+    userID: userID,
     dateCreated: Date.now(),
     totalViews: 0,
     uniqueViews: 0,
@@ -67,34 +68,36 @@ function editURL (shortURL, longURL) {
 }
 
 function deleteURL (shortURL) {
-  delete urlDatabase[shortURL]
+  delete urlDatabase[shortURL];
 }
 
-// filters urlDatabase by user_id
-function urlsForUser (user_id) {
+// filters urlDatabase by userID
+function urlsForUser (userID) {
   output = {};
   for (url in urlDatabase) {
-    if (urlDatabase[url].userID === user_id) {
+    if (urlDatabase[url].userID === userID) {
       output[url] = urlDatabase[url];
     }
   }
   return output;
 }
 
-function trackView (shortURL, visitor_id) {
+function trackView (shortURL, visitorId) {
   let test = urlDatabase[shortURL].viewLog.find((visit) => {
-    return visit.visitor_id === visitor_id;
+    return visit.visitorId === visitorId;
   });
-  if (!test) urlDatabase[shortURL].uniqueViews += 1;
+  if (!test) {
+    urlDatabase[shortURL].uniqueViews += 1;
+  }
   urlDatabase[shortURL].totalViews += 1;
   urlDatabase[shortURL].viewLog.push({
     timestamp: Date.now(),
-    visitor_id: visitor_id
+    visitorId: visitorId
   });
 }
 
-function checkAccess (shortURL, user_id) {
-  return user_id === urlDatabase[shortURL].userID;
+function checkAccess (shortURL, userID) {
+  return userID === urlDatabase[shortURL].userID;
 }
 
 module.exports = {
@@ -107,4 +110,4 @@ module.exports = {
     deleteURL,
     checkAccess
   }
-}
+};

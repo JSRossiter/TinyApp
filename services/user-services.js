@@ -6,20 +6,24 @@ const users = {
     email: "1@1",
     password: bcrypt.hashSync("1", 10)
   }
-}
+};
 
 function findUserById (id) {
-  return users[id]
+  return users[id];
+}
+
+function findUserByEmail(email) {
+  return Object.values(users).find(u => u.email === email);
 }
 
 function createNewUser (email, password) {
-  const user_id = generateRandomString();
-  users[user_id] = {
-    id: user_id,
+  const userID = generateRandomString();
+  users[userID] = {
+    id: userID,
     email: email,
     password: bcrypt.hashSync(password, 10)
   };
-  return users[user_id];
+  return users[userID];
 }
 
 function authenticateUser (email, password) {
@@ -31,11 +35,6 @@ function authenticateUser (email, password) {
   }
 }
 
-
-function findUserByEmail(email) {
-  return Object.values(users).find(u => u.email === email);
-}
-
 module.exports = {
   userService: {
     findUserByEmail,
@@ -43,4 +42,4 @@ module.exports = {
     createNewUser,
     authenticateUser
   }
-}
+};

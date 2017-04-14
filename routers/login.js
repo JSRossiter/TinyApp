@@ -17,15 +17,15 @@ function newUser (req, res, next) {
     next({status: 409, message: 'user already exists'});
     return;
   }
-  req.app.locals.user = userService.createNewUser (req.body.email, req.body.password);
-  req.session.user_id = req.app.locals.user.id;
+  req.app.locals.user = userService.createNewUser(req.body.email, req.body.password);
+  req.session.userID = req.app.locals.user.id;
   next();
 }
 
 function login (req, res, next) {
   req.app.locals.user = userService.authenticateUser(req.body.email, req.body.password);
   if (req.app.locals.user) {
-    req.session.user_id = req.app.locals.user.id;
+    req.session.userID = req.app.locals.user.id;
     next();
   } else {
     return next({status: 409, message: 'incorrect email or password'});
@@ -41,7 +41,7 @@ function checkInput (req, res, next) {
 
 function checkSubmission (req, res, next) {
   if (req.session.longURL) {
-    urlService.createURL(req.session.longURL, req.session.user_id);
+    urlService.createURL(req.session.longURL, req.session.userID);
     req.session.longURL = null;
   }
   next();
@@ -60,13 +60,16 @@ router.route("/login")
     res.render("login");
   })
   .post(checkInput, login, checkSubmission, (req, res, next) => {
-    if (req.body.path) res.redirect(req.body.path);
-    else res.redirect("/urls");
+    if (req.body.path) {
+      res.redirect(req.body.path);
+    } else {
+      res.redirect("/urls");
+    }
   });
 
 // logout
 router.post("/logout", (req, res) => {
-  req.session.user_id = null;
+  req.session.userID = null;
   res.redirect("/");
 });
 

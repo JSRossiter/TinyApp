@@ -8,8 +8,8 @@ const router = express.Router();
 router.use(methodOverride('_method'));
 
 function requireLogin (req, res, next) {
-  if (!req.session.user_id) {
-    let templateVars = { user: null, path: `/urls${req.path}` }
+  if (!req.session.userID) {
+    let templateVars = { user: null, path: `/urls${req.path}` };
     res.status(401).render("require_login", templateVars);
     return;
   }
@@ -17,9 +17,10 @@ function requireLogin (req, res, next) {
 }
 
 function checkAccess (req, res, next) {
-  if (!urlService.checkAccess(req.params.shortURL, req.session.user_id)) {
+  if (!urlService.checkAccess(req.params.shortURL, req.session.userID)) {
     return next({status: 403, message: 'you do not have access to this url'});
-  } else next();
+  }
+  next();
 }
 
 // check if link is in database
@@ -35,11 +36,11 @@ router.use(requireLogin);
 
 router.route("/")
   .get((req, res) => {
-    res.render("urls_index", { urls: urlService.urlsForUser(req.session.user_id) });
+    res.render("urls_index", { urls: urlService.urlsForUser(req.session.userID) });
   })
   // create a link
   .post((req, res) => {
-    urlService.createURL(req.body.longURL, req.session.user_id);
+    urlService.createURL(req.body.longURL, req.session.userID);
     res.redirect("/urls");
   });
 
