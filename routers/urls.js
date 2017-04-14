@@ -1,6 +1,5 @@
 const express = require('express');
 const methodOverride = require('method-override');
-const bodyParser = require("body-parser");
 
 const {urlService} = require('../services/url-services');
 
@@ -19,7 +18,7 @@ function requireLogin (req, res, next) {
 
 function checkAccess (req, res, next) {
   if (!urlService.checkAccess(req.params.shortURL, req.session.user_id)) {
-    return next({status: 403, message: 'you do not have access to this url'})
+    return next({status: 403, message: 'you do not have access to this url'});
   } else next();
 }
 
@@ -40,7 +39,7 @@ router.route("/")
   })
   // create a link
   .post((req, res) => {
-    urlService.createURL(req.body.longURL, req.session.user_id)
+    urlService.createURL(req.body.longURL, req.session.user_id);
     res.redirect("/urls");
   });
 
@@ -60,7 +59,6 @@ router.route("/:shortURL")
   })
   // delete a link
   .delete((req, res) => {
-    // TODO implement function
     urlService.deleteURL(req.params.shortURL);
     res.redirect("/urls");
   });
