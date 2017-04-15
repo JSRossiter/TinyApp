@@ -41,8 +41,7 @@ router.route("/")
   })
   // create a link
   .post((req, res) => {
-    urlService.createURL(req.body.longURL, req.session.userID);
-    res.redirect("/urls");
+    res.redirect("/urls/" + urlService.createURL(req.body.longURL, req.session.userID));
   });
 
 router.get("/new", (req, res) => {

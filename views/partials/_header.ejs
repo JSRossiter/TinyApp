@@ -2,7 +2,8 @@
 <% if (user) { %>
   <form id="logout" action="/logout" method="POST">
     <label for="logout">Logged in as <%= user.email %></label>
-    <input type="submit" id="logout" value="Logout" class="btn btn-default btn-sm">
+    <a href="/urls"><input type="button" value="My links" class="btn btn-default btn-sm" /></a>
+    <input type="submit" id="logout" value="Logout" class="btn btn-default btn-sm" />
   </form>
 <% } else {%>
 <a class="header btn btn-default" href="/register">Register</a> <a class="header btn btn-default" href="/login">Login</a>

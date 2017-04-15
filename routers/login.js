@@ -14,7 +14,7 @@ function checkLogin (req, res, next) {
 
 function newUser (req, res, next) {
   if(userService.findUserByEmail(req.body.email)) {
-    next({status: 409, message: 'user already exists'});
+    next({status: 400, message: 'user already exists'});
     return;
   }
   req.app.locals.user = userService.createNewUser(req.body.email, req.body.password);
@@ -28,13 +28,13 @@ function login (req, res, next) {
     req.session.userID = req.app.locals.user.id;
     next();
   } else {
-    return next({status: 409, message: 'incorrect email or password'});
+    return next({status: 401, message: 'incorrect email or password'});
   }
 }
 
 function checkInput (req, res, next) {
   if (!req.body.email || !req.body.password) {
-    return next({status: 409, message: 'missing email or password'});
+    return next({status: 400, message: 'missing email or password'});
   }
   next();
 }

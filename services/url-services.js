@@ -25,8 +25,8 @@ const urlDatabase = {
     shortURL: "9sm99K",
     longURL: "http://www.google.com",
     userID: "test",
-    totalViews: 0,
-    uniqueViews: 0,
+    totalViews: 1,
+    uniqueViews: 1,
     dateCreated: 1492031283873,
     viewLog: [{
       timestamp: 1492038283879,
@@ -61,6 +61,7 @@ function createURL (longURL, userID) {
     uniqueViews: 0,
     viewLog: []
   };
+  return shortURL;
 }
 
 function editURL (shortURL, longURL) {

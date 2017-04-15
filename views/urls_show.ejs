@@ -18,6 +18,7 @@
       <input id="longURL" type="text" name="longURL" placeholder="<%= url.longURL %>" style="width: 400px">
       <input type="submit" value="Update">
     </form>
+    <form method="POST" action="/urls/<%= shortURL %>?_method=DELETE"><input type="submit" value="Delete" class="btn btn-default btn-sm" /></form>
     <table class="table table-striped">
       <caption><h3>Total views: <%= url.totalViews %> - unique views: <%= url.uniqueViews %></h3></caption>
       <tr>
